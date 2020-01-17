@@ -8,9 +8,11 @@
 
 
 #BONUS QUESTIONS#
+[1]
+#for movie_metadata set#
 import pandas as pd
 import numpy as np
-df=pd.read_csv("C:\\Users\\siva.maineni\\Downloads\\movie_metadata.csv"
+df=pd.read_csv("C:\\Users\\siva.maineni\\Downloads\\movie_metadata.csv")
 temp=df.groupby('title_year')['genres'].unique()
 genre_combo=pd.DataFrame(temp)
 genre_combo['avg_rating']=df.groupby(['genres'])['imdb_score'].mean()
@@ -18,6 +20,7 @@ genre_combo['max_rating']=df.groupby(['genres'])['imdb_score'].max()
 genre_combo['min_rating']=df.groupby(['genres'])['imdb_score'].min()
  
 [2]
+#tracking the trend of length of titles and movies under each quartile
 import pandas as pd
 import numpy as np
 df=pd.read_csv("C:\\Users\\siva.maineni\\Downloads\\movie_metadata.csv")
@@ -73,14 +76,87 @@ temp2['< 0.75%']=S
 temp2['>0.75%']=G
                
  [3]
- 
+#cross tab between the bins of volume and cut
+import pandas as pd
+df=pd.read_csv('C:\\Users\\siva.maineni\\Downloads\\diamond.csv',engine='python')
+import numpy as np
+df['volume']=8
+df.loc[df['depth'] > 60, 'volume'] = (df['x']*df['y'])*df['z']	       
+df['bins']=pd.qcut(df['volume'],q=5)
+pd.crosstab(df.cut,df.bins,margins=True,margins_name='total',normalize=True)
+	       
                
-               
-               
-
-
-
-
+ [4]
+#report of avg_imdb of each year and year on year growth 
+import pandas as pd
+import numpy as np	       
+df=pd.read_csv("c:/Users/siva.maineni/Downloads/imdb.csv",escapechar="\\")	       
+df2=pd.DataFrame()
+df2=df
+df2.dropna(subset=['imdbRating'])
+df2['GenreCombo']=df2[df2.columns[16:]].T.apply(lambda g: '|'.join(g.index[g==1]),axis=0)               
+newdf=pd.DataFrame()
+newdf=df2.groupby(['year'])['imdbRating'].mean().to_frame()
+newdf.isnull().sum()
+newdf['imdbRating'].replace(to_replace=np.nan,value=newdf['imdbRating'].mean(),inplace=True)
+l=len(newdf)
+import numpy as np
+yoy=[0]*l
+for i in range(1,l):
+    temp=(newdf.iloc[i]['imdbRating']-newdf.iloc[i-1]['imdbRating'])
+    yoy[i]=(temp/newdf.iloc[i-1]['imdbRating'])*100
+    
+yoy=pd.Series(yoy)
+result=pd.DataFrame()
+result['year']=pd.Series(newdf.index)
+result['Avg_imdb']=newdf['imdbRating'].to_numpy()
+result['yoy growth']=yoy
+result.round(2)
+#report of top 10 grossing movies in last 10 years and no of movies fall under each genre
+newdf2=result
+g=newdf2.sort_values('year',ascending=False)['year'].head(10).reset_index(drop=True)
+g=g.to_list()
+mask=df2['year'].isin(g)
+g2=df2[mask].sort_values('imdbRating',ascending=False).reset_index(drop=True).groupby('year')['wordsInTitle','year'].head(10)
+g2=g2.sort_values('year',ascending=False).reset_index(drop=True)
+l=[]
+j=0
+for i in g2['year'].unique():
+    temp=g2[g2['year']==i]['wordsInTitle']
+    l.append(temp.to_list())
+result=pd.DataFrame()
+result['year']=g2['year'].unique()
+result['top movies']=l
+l=df2.columns[16:44]
+r=pd.DataFrame()
+for i in g2['year'].unique():
+        p=g2[g2['year']==i]['wordsInTitle']
+        p2=df2[df2['wordsInTitle'].isin(p)][l].sum()
+        p2=p2.to_frame().transpose()
+        p2['year']=i
+        r= pd.concat([r,p2])
+result=pd.merge(result,r,on='year')	       
+	       
+	       
+[4]
+#report that tracks various features like nomiations, wins, count, top 3 geners in each decile.
+import pandas as pd
+df=pd.read_csv("c:/Users/siva.maineni/Downloads/imdb.csv",escapechar='\\')
+df['GenreCombo']=df[df.columns[16:]].T.apply(lambda g: '|'.join(g.index[g==1]),axis=0)
+df['decile']=pd.qcut(df.year,q=10)
+df2=pd.DataFrame()
+df2=df.groupby(['decile'])['nrOfNominations'].sum()
+df2=df2.to_frame()
+df2.columns=['no of nominations']
+df2['wins']=df.groupby('decile')['nrOfWins'].sum()
+df2['no of movies']=df.groupby('decile')['wordsInTitle'].count()
+l2=[]
+for i in df2.index:
+    temp=df[df['decile']==i].sort_values('imdbRating',ascending=False).reset_index()['GenreCombo'].head(3)
+    l2.append(temp.to_list())
+df2['top genres']=l2
+    	       
+#questions from 1-15	       
 def least_sales(df):
     # write code to return pandas dataframe
 	ls = df.groupby(["Item"])["Sale_amt"].min().reset_index()

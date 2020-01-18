@@ -8,7 +8,6 @@
 
 
 #BONUS QUESTIONS#
-[1]
 #for movie_metadata set#
 import pandas as pd
 import numpy as np
@@ -19,7 +18,7 @@ genre_combo['avg_rating']=df.groupby(['genres'])['imdb_score'].mean()
 genre_combo['max_rating']=df.groupby(['genres'])['imdb_score'].max()
 genre_combo['min_rating']=df.groupby(['genres'])['imdb_score'].min()
  
-[2]
+	
 #tracking the trend of length of titles and movies under each quartile
 import pandas as pd
 import numpy as np
@@ -75,7 +74,6 @@ temp2['< 0.5%']=F
 temp2['< 0.75%']=S
 temp2['>0.75%']=G
                
- [3]
 #cross tab between the bins of volume and cut
 import pandas as pd
 df=pd.read_csv('C:\\Users\\siva.maineni\\Downloads\\diamond.csv',engine='python')
@@ -86,7 +84,6 @@ df['bins']=pd.qcut(df['volume'],q=5)
 pd.crosstab(df.cut,df.bins,margins=True,margins_name='total',normalize=True)
 	       
                
- [4]
 #report of avg_imdb of each year and year on year growth 
 import pandas as pd
 import numpy as np	       
@@ -208,6 +205,7 @@ def fifth_movie(df):
 # Q8 return titles of movies with shortest and longest run time
 def movies(df):
 	# write code here
+	df[(duration==df['duration'].min())| (duration==df['duration'].max())]['wordsInTitle']
 	return df['title']
 
 # Q9 sort by two columns - release_date (earliest) and Imdb rating(highest to lowest)
